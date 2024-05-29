@@ -1,10 +1,8 @@
 package Server;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,8 +14,8 @@ import javax.swing.JTextArea;
 public class Server {
 
 	// 유저 관리
-	private static final int PORT = 5000;
-	private static Vector<ConnectUser> connectedUsers = new Vector<>();
+	private static final int PORT = 5010;
+	private static Vector<PrintWriter> connectedUsers = new Vector<>();
 
 	// 프레임 창
 	private ServerFream serverFream;
@@ -35,7 +33,9 @@ public class Server {
 	private String message;
 
 	// 포트 번호
-	private int protNum = 5002;
+	private int protNum = 5010;
+
+	// 아이피 셋
 
 	public Server() {
 		serverFream = new ServerFream(this);
@@ -48,7 +48,9 @@ public class Server {
 		try {
 			serverSocket = new ServerSocket(protNum);
 			serverFream.getConnectBtn().setEnabled(false);
-			// 대기상태로 옮긴다
+			clientConnect();
+			mainBoard("서버 오픈\n");
+			System.out.println("serverStart");
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, "넘버 오류", "알림", JOptionPane.ERROR_MESSAGE, null);
 			serverFream.getConnectBtn().setEnabled(true);
@@ -56,16 +58,17 @@ public class Server {
 
 	} // end of serverStart
 
+	// 소켓 연결
 	private void clientConnect() {
 		new Thread(() -> {
 
 			while (true) {
 				try {
+					mainBoard("사용자 연결 대기중\n");
 					socket = serverSocket.accept();
 					// 창 띄워 줘야뎀
-					mainBoard("사용자 연결 대기중");
-
-					ConnectUser user = new ConnectUser(socket);
+					mainBoard("연결했당\n");
+					new ConnectUser(socket).start();
 
 				} catch (IOException e) {
 					mainBoard("사용자 연결 Error");
@@ -85,52 +88,52 @@ public class Server {
 
 	}// end of mainBoard
 
-	private class ConnectUser {
+	// 유저 관리
+	private class ConnectUser extends Thread {
 
 		// 소켓
 		private Socket socket;
 
 		// 입 출력
 		private BufferedReader reader;
-		private BufferedWriter writer;
-
-		// 정보
-		private String name;
+		private PrintWriter out;
 
 		public ConnectUser(Socket socket) {
 			this.socket = socket;
-			ioConnect(); // 입출력 시작
 		}
 
-		// 입출력
-		private void ioConnect() {
+		@Override
+		public void run() {
 			try {
 				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+				out = new PrintWriter(socket.getOutputStream(), true);
+				connectedUsers.add(out);
 
-				initInfo();
+				String message;
+				while ((message = reader.readLine()) != null) {
+					mainBoard.append(message + "\n");
+					broadcastMessage(message);
+
+				}
 			} catch (Exception e) {
-				mainBoard("입출력 안되고있어용");
-				JOptionPane.showMessageDialog(null, "입출력 에러!", "알림", JOptionPane.ERROR_MESSAGE, null);
+				mainBoard.append("나감\n");
+			} finally {
+				try {
+					socket.close();
+				} catch (IOException e) {
+					mainBoard("종료");
+				}
 			}
-
-		} // end of ioConnect
-
-		private void initInfo() {
-
-			try {
-				name = reader.readLine();
-				mainBoard("접속 : " + name + "\n");
-
-			} catch (Exception e) {
-				mainBoard("접속 Error");
-			}
-
 		}
-		
-		
 
-	}// end of class
+	} // end of class
+
+	// 모든 클라이언트에게 메세지 보내기 - 브로드 캐스트
+	private void broadcastMessage(String message) {
+		for (PrintWriter writer : connectedUsers) {
+			writer.println(message);
+		}
+	}
 
 	// get,set
 
