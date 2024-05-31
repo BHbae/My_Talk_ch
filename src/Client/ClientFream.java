@@ -148,7 +148,7 @@ public class ClientFream extends JFrame {
 		backgroundPanel.add(messagePanel);
 
 		// 메인 컴포넌트
-		mainPanel.setBounds(50, 100, 630, 650);
+		mainPanel.setBounds(50, 100, 600, 650);
 		mainPanel.setBackground(Color.WHITE);
 
 		mainBoard.setEditable(false);
@@ -174,13 +174,12 @@ public class ClientFream extends JFrame {
 			}
 		});
 
-		this.addKeyListener(new KeyAdapter() {
+		messageBox.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_ENTER:
 					mContext.sendMessage();
-					break;
 				}
 			}
 		});
@@ -193,9 +192,10 @@ public class ClientFream extends JFrame {
 		private Image backgroundImage;
 
 		public BackgroundPanel() {
-			backgroundImage = new ImageIcon("img/kakao2.png").getImage();
+			backgroundImage = new ImageIcon("img/KakaoTalk_20240531_165400389.jpg").getImage();
 			backgroundPanel = new JPanel();
 			add(backgroundPanel);
+
 		}
 
 		@Override

@@ -6,16 +6,24 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+
+// UserClient ex Sock  {
+//	id =  1 
+//	P
+//	B
+//}
 
 public class Server {
 
 	// 유저 관리
 	private static final int PORT = 5010;
 	private static Vector<PrintWriter> connectedUsers = new Vector<>();
+	private static ArrayList<String> name = new ArrayList<>();
 
 	// 프레임 창
 	private ServerFream serverFream;
@@ -48,6 +56,7 @@ public class Server {
 		try {
 			serverSocket = new ServerSocket(protNum);
 			serverFream.getConnectBtn().setEnabled(false);
+			serverFream.getInputPort().setEditable(false);
 			clientConnect();
 			mainBoard("서버 오픈\n");
 			System.out.println("serverStart");
@@ -64,11 +73,11 @@ public class Server {
 
 			while (true) {
 				try {
-					mainBoard("사용자 연결 대기중\n");
+					mainBoard(">>>>>>>>>>>> 사용자 연결 대기중 <<<<<<<<<<\n");
 					socket = serverSocket.accept();
 					// 창 띄워 줘야뎀
-					mainBoard("연결했당\n");
 					new ConnectUser(socket).start();
+					mainBoard("연결했당\n");
 
 				} catch (IOException e) {
 					mainBoard("사용자 연결 Error");
@@ -91,8 +100,11 @@ public class Server {
 	// 유저 관리
 	private class ConnectUser extends Thread {
 
-		// 소켓
+		// 소켓 관리
 		private Socket socket;
+
+		// 닉네임
+		private String id;
 
 		// 입 출력
 		private BufferedReader reader;
@@ -107,16 +119,23 @@ public class Server {
 			try {
 				reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				out = new PrintWriter(socket.getOutputStream(), true);
+				id = reader.readLine();
 				connectedUsers.add(out);
-
+				mainBoard.append(id + " 입장\n");;
+				broadcastMessage(id + " 입장");
 				String message;
 				while ((message = reader.readLine()) != null) {
 					mainBoard.append(message + "\n");
 					broadcastMessage(message);
+					if (message.startsWith("ID")) {
+						String id[] = message.split(" : "); 
+						name.add(id[1]);
+					}
 
 				}
 			} catch (Exception e) {
-				mainBoard.append("나감\n");
+				broadcastMessage(id + " 나감\n");
+				mainBoard.append(id + " 나감\n");
 			} finally {
 				try {
 					socket.close();
@@ -137,6 +156,15 @@ public class Server {
 
 	// get,set
 
+	public static ArrayList<String> getName() {
+		return name;
+	}
+
+	public static void setName(ArrayList<String> name) {
+		Server.name = name;
+	}
+
+	// 메인
 	public static void main(String[] args) {
 		new Server();
 	}

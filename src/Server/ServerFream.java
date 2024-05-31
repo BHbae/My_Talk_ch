@@ -36,7 +36,7 @@ public class ServerFream extends JFrame {
 	private JButton connectBtn;
 
 	// 포트 번호
-	private int protNum = 5000;
+	private int protNum = 5010;
 
 	// 춘식이
 	//private JPanel chunsick;
@@ -70,7 +70,7 @@ public class ServerFream extends JFrame {
 		connectBtn = new JButton("실행");
 
 		// 포트 넘
-		inputPort.setText("5000");
+		inputPort.setText("5010");
 	}
 
 	// 프레임 셋팅
@@ -108,7 +108,7 @@ public class ServerFream extends JFrame {
 
 		mainBoard.setEditable(false);
 		mainPanel.add(scrollPane);
-		scrollPane.setBounds(55, 100, 600, 650);
+		scrollPane.setBounds(50, 100, 600, 650);
 		scrollPane.add(mainBoard);
 		backgroundPanel.add(mainPanel);
 
@@ -136,7 +136,7 @@ public class ServerFream extends JFrame {
 		private Image backgroundImage;
 
 		public BackgroundPanel() {
-			backgroundImage = new ImageIcon("img/kakao2.png").getImage();
+			backgroundImage = new ImageIcon("img/kakao6.png").getImage();
 			backgroundPanel = new JPanel();
 			add(backgroundPanel);
 		}

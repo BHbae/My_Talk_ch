@@ -39,7 +39,7 @@ public class Client {
 	private String message;
 	// 메세지 버튼
 	private JButton messageBtn;
-	
+
 	// 아이피 필드
 	private String ipFiled;
 
@@ -56,7 +56,17 @@ public class Client {
 			mainBoard.append("아이피 포트 연결\n");
 			name = clientFream.getInputId().getText();
 			clientFream.getConnectBtn().setEnabled(false);
+
+			clientFream.getInputId().setEditable(false);
+			clientFream.getInputId().setDragEnabled(false);
+
+			clientFream.getInputIp().setEditable(false);
+			clientFream.getInputIp().setDragEnabled(false);
+
+			clientFream.getInputPort().setEditable(false);
+			clientFream.getInputPort().setDragEnabled(false);
 			messageBtn.setEnabled(true);
+
 			chatTing();
 			connectIO();
 		} catch (Exception e) {
@@ -83,20 +93,21 @@ public class Client {
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 			mainBoard.append(">>>> 서버에 접속 완료 <<<< \n");
-			
+			out.println("ID : " + name);
 			new Thread(() -> {
 				try {
 					String serverMsg;
-					while((serverMsg = in.readLine()) != null) {
-						mainBoard.append(serverMsg + "\n"); 
+					while ((serverMsg = in.readLine()) != null) {
+						mainBoard.append(serverMsg + "\n");
 					}
-				
+
 				} catch (Exception e) {
-					mainBoard.append("읽기오류");
+					mainBoard.append("서버 연결 오류");
 				}
 			}).start();
 
 		} catch (Exception e) {
+			// out.println(name + " 님 입장");
 			mainBoard.append("chatTing");
 		}
 
@@ -118,32 +129,26 @@ public class Client {
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "입출력 에러!", "알림", JOptionPane.ERROR_MESSAGE, null);
 		}
-		
+
 	}// end of mainBoard
-	
+
 	public void sendMessage() {
 		String message = clientFream.getMessageBox().getText();
 		if (!message.isEmpty()) {
 			out.println(name + " : " + message);
-			// appendMessage(message);
 			clientFream.getMessageBox().setText("");
 		}
 	}
 
-	    public void setPrintWriter(PrintWriter out) {
-	        this.out = out;
-	    }
+	public void setPrintWriter(PrintWriter out) {
+		this.out = out;
+	}
 
-	    public void appendMessage(String message) {
-	        mainBoard.append(message + "\n");
-	    }
-	    
-	    
-	    
-	    
-	    
+	public void appendMessage(String message) {
+		mainBoard.append(message + "\n");
+	}
+
 // 겟셋
-	
 
 	public ClientFream getClientFream() {
 		return clientFream;
@@ -240,8 +245,9 @@ public class Client {
 	public void setMessageBtn(JButton messageBtn) {
 		this.messageBtn = messageBtn;
 	}
+
 	// 메인
-		public static void main(String[] args) {
-			new Client();
-		}
+	public static void main(String[] args) {
+		new Client();
+	}
 }
